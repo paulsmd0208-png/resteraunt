@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Feuer & Seele – Restaurant</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C8972A;
+  --cream:#F5F0E8;
+  --dark:#1A1208;
+  --ember:#D4410B;
+  --smoke:#8C7A6B;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--cream);overflow-x:hidden}
+
+/* ===== ADMIN PANEL ===== */
+#admin-toggle{position:fixed;bottom:2rem;right:2rem;z-index:9999;background:var(--gold);color:var(--dark);border:none;border-radius:50px;padding:0.75rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.4);transition:all 0.3s}
+#admin-toggle:hover{background:#B8850F;transform:translateY(-2px)}
+
+#admin-panel{position:fixed;top:0;right:-480px;width:460px;height:100vh;background:#0F0A04;border-left:1px solid rgba(200,151,42,0.2);z-index:9998;overflow-y:auto;transition:right 0.4s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column}
+#admin-panel.open{right:0}
+
+.admin-header{padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(200,151,42,0.15);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#0F0A04;z-index:10}
+.admin-header h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold)}
+.admin-header p{font-size:0.75rem;color:var(--smoke);margin-top:0.2rem}
+#admin-close{background:none;border:none;color:var(--smoke);font-size:1.4rem;cursor:pointer;padding:0.25rem;transition:color 0.2s}
+#admin-close:hover{color:var(--cream)}
+
+.admin-tabs{display:flex;border-bottom:1px solid rgba(200,151,42,0.15);background:#0F0A04;position:sticky;top:72px;z-index:9}
+.admin-tab{flex:1;padding:0.75rem;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;background:none;border:none;color:var(--smoke);cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent}
+.admin-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+.admin-body{padding:1.5rem;flex:1}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.field-group{margin-bottom:1.5rem}
+.field-label{font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--smoke);display:block;margin-bottom:0.5rem}
+.admin-input, .admin-textarea, .admin-select{width:100%;background:rgba(245,240,232,0.05);border:1px solid rgba(200,151,42,0.2);color:var(--cream);padding:0.65rem 0.9rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;border-radius:2px}
+.admin-input:focus, .admin-textarea:focus{border-color:var(--gold)}
+.admin-textarea{resize:vertical;min-height:80px;line-height:1.6}
+.admin-select{cursor:pointer}
+.admin-select option{background:#1A1208}
+
+.color-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.color-field{display:flex;align-items:center;gap:0.75rem}
+.color-field input[type=color]{width:40px;height:36px;border:1px solid rgba(200,151,42,0.3);background:none;cursor:pointer;padding:2px;border-radius:2px}
+.color-field span{font-size:0.8rem;color:var(--smoke)}
+
+.section-divider{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);padding:0.75rem 0;border-bottom:1px solid rgba(200,151,42,0.1);margin:1rem 0 1.5rem;display:flex;align-items:center;gap:0.75rem}
+.section-divider::after{content:'';flex:1;height:1px;background:rgba(200,151,42,0.1)}
+
+/* Menu items in admin */
+.menu-admin-item{background:rgba(245,240,232,0.03);border:1px solid rgba(200,151,42,0.1);border-radius:2px;padding:1rem;margin-bottom:1rem}
+.menu-admin-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem}
+.menu-admin-item-header span{font-size:0.8rem;color:var(--gold);font-weight:500}
+.menu-delete-btn{background:none;border:none;color:var(--smoke);cursor:pointer;font-size:1rem;transition:color 0.2s;padding:0.2rem}
+.menu-delete-btn:hover{color:#D4410B}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+
+#add-menu-btn{width:100%;background:none;border:1px dashed rgba(200,151,42,0.3);color:var(--gold);padding:0.75rem;font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;border-radius:2px;margin-top:0.5rem}
+#add-menu-btn:hover{border-color:var(--gold);background:rgba(200,151,42,0.05)}
+
+.admin-save{width:100%;background:var(--gold);color:var(--dark);border:none;padding:1rem;font-size:0.85rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:1.5rem;border-radius:2px}
+.admin-save:hover{background:#B8850F}
+.save-feedback{text-align:center;font-size:0.8rem;color:var(--gold);margin-top:0.75rem;opacity:0;transition:opacity 0.3s}
+.save-feedback.show{opacity:1}
+
+/* ===== WEBSITE ===== */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 4rem;background:rgba(26,18,8,0.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(200,151,42,0.15)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:rgba(245,240,232,0.7);text-decoration:none;font-size:0.85rem;letter-spacing:0.12em;text-transform:uppercase;transition:color 0.3s}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{background:var(--ember);color:white;padding:0.55rem 1.5rem;border-radius:2px;font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:background 0.3s}
+.nav-cta:hover{background:#B8360A}
+
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden}
+.hero-left{display:flex;flex-direction:column;justify-content:center;padding:8rem 4rem 4rem 5rem;position:relative;z-index:2}
+.hero-tag{display:inline-flex;align-items:center;gap:0.6rem;font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem}
+.hero-tag::before{content:'';display:inline-block;width:2rem;height:1px;background:var(--gold)}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(3rem,5vw,5rem);line-height:1.05;margin-bottom:1.5rem}
+.hero-title em{color:var(--gold);font-style:italic}
+.hero-desc{color:rgba(245,240,232,0.6);font-size:1rem;line-height:1.8;max-width:38ch;margin-bottom:2.5rem;font-weight:300}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-primary{background:var(--gold);color:var(--dark);padding:0.9rem 2rem;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.3s}
+.btn-secondary{background:transparent;color:var(--cream);padding:0.9rem 2rem;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:1px solid rgba(245,240,232,0.3);font-family:'DM Sans',sans-serif;transition:all 0.3s}
+.hero-right{position:relative;overflow:hidden}
+.hero-img-container{width:100%;height:100%;background:linear-gradient(135deg,#2D1A0A 0%,#1A1208 60%);display:flex;align-items:center;justify-content:center}
+.hero-plate{width:340px;height:340px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#3D2010,#1A0D05);border:1px solid rgba(200,151,42,0.3);display:flex;align-items:center;justify-content:center}
+.plate-emoji{font-size:7rem;animation:float 4s ease-in-out infinite}
+.hero-badge{position:absolute;top:25%;right:10%;background:var(--ember);color:white;width:90px;height:90px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Playfair Display',serif;line-height:1.1;text-align:center;font-size:0.65rem;letter-spacing:0.05em}
+.hero-badge strong{font-size:1.3rem;display:block}
+
+.divider{display:flex;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;border-top:1px solid rgba(200,151,42,0.1);border-bottom:1px solid rgba(200,151,42,0.1);flex-wrap:wrap}
+.divider span{font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--smoke)}
+.divider::before,.divider::after{content:'◆';color:var(--gold);font-size:0.5rem}
+
+.section{padding:6rem 5rem}
+.section-header{text-align:center;margin-bottom:4rem}
+.section-tag{font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:1rem}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,3rem);line-height:1.2}
+.section-title em{color:var(--gold);font-style:italic}
+
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(200,151,42,0.1)}
+.menu-item{background:var(--dark);padding:2.5rem 2rem;transition:background 0.3s}
+.menu-item:hover{background:#221608}
+.menu-item-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
+.menu-item-name{font-family:'Playfair Display',serif;font-size:1.2rem;flex:1;padding-right:1rem}
+.menu-price{color:var(--gold);font-size:1rem;font-weight:500;white-space:nowrap}
+.menu-desc{font-size:0.85rem;color:var(--smoke);line-height:1.6;font-weight:300}
+.menu-badge{display:inline-block;margin-top:1rem;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.25rem 0.75rem;border:1px solid rgba(200,151,42,0.3);color:var(--gold)}
+
+.feature-split{display:grid;grid-template-columns:1fr 1fr}
+.feature-visual{background:linear-gradient(160deg,#2D1A0A,#150E05);display:flex;align-items:center;justify-content:center;padding:5rem;position:relative;overflow:hidden}
+.feature-visual::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;border:1px solid rgba(200,151,42,0.08);top:50%;left:50%;transform:translate(-50%,-50%)}
+.feature-icon{font-size:5rem;position:relative;z-index:1}
+.feature-content{padding:5rem 4rem;display:flex;flex-direction:column;justify-content:center}
+.feature-list{list-style:none;margin-top:2rem;display:flex;flex-direction:column;gap:1.5rem}
+.feature-list li{display:flex;gap:1rem;align-items:flex-start}
+.feature-list .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);margin-top:0.5rem;flex-shrink:0}
+.feature-list p{font-size:0.9rem;color:rgba(245,240,232,0.65);line-height:1.7;font-weight:300}
+.feature-list strong{display:block;color:var(--cream);font-size:0.95rem;margin-bottom:0.2rem}
+
+.testimonial-section{background:#100C05;padding:6rem 5rem;text-align:center}
+.testimonial-quote{font-family:'Playfair Display',serif;font-size:clamp(1.3rem,2.5vw,2rem);line-height:1.5;max-width:700px;margin:0 auto 2rem;font-style:italic}
+.testimonial-author{font-size:0.8rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--smoke)}
+.stars{color:var(--gold);font-size:1rem;margin-bottom:1.5rem;letter-spacing:0.2em}
+
+.reservation-section{padding:5rem;text-align:center}
+.reservation-form{display:flex;gap:1rem;justify-content:center;margin-top:2.5rem;flex-wrap:wrap}
+.res-input{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.9rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;min-width:180px;outline:none}
+.res-input::placeholder{color:rgba(255,255,255,0.6)}
+.res-btn{color:var(--dark);padding:0.9rem 2.5rem;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;font-weight:500;background:var(--dark);color:var(--gold)}
+
+footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem}
+.footer-logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold)}
+.footer-info{font-size:0.8rem;color:var(--smoke);line-height:2}
+.footer-copy{font-size:0.75rem;color:rgba(140,122,107,0.5)}
+
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+</style>
+</head>
+<body>
+
+<!-- ===== ADMIN TOGGLE ===== -->
+<button id="admin-toggle" onclick="toggleAdmin()">⚙ Admin</button>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div id="admin-panel">
+  <div class="admin-header">
+    <div>
+      <h2>Website bearbeiten</h2>
+      <p>Änderungen werden sofort angezeigt</p>
+    </div>
+    <button id="admin-close" onclick="toggleAdmin()">✕</button>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchTab('allgemein')">Allgemein</button>
+    <button class="admin-tab" onclick="switchTab('speisekarte')">Speisekarte</button>
+    <button class="admin-tab" onclick="switchTab('design')">Design</button>
+    <button class="admin-tab" onclick="switchTab('kontakt')">Kontakt</button>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- TAB: ALLGEMEIN -->
+    <div class="tab-content active" id="tab-allgemein">
+      <div class="section-divider">Restaurant Info</div>
+      <div class="field-group">
+        <label class="field-label">Restaurant Name</label>
+        <input class="admin-input" id="f-name" value="Feuer & Seele" oninput="update('name',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Slogan / Tagline</label>
+        <input class="admin-input" id="f-slogan" value="Wo Feuer auf Seele trifft." oninput="update('slogan',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Untertitel (Hero)</label>
+        <textarea class="admin-textarea" id="f-desc" oninput="update('desc',this.value)">Handgemachte Küche mit Leidenschaft. Jedes Gericht erzählt eine Geschichte – von lokalen Produzenten, ehrlichen Zutaten und echtem Handwerk.</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Standort & Jahr (z.B. Seit 2008 · Frankfurt)</label>
+        <input class="admin-input" id="f-tag" value="Seit 2008 · Frankfurt am Main" oninput="update('tag',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Google Bewertung (z.B. ★ 4.9)</label>
+        <input class="admin-input" id="f-rating" value="★ 4.9" oninput="update('rating',this.value)">
+      </div>
+
+      <div class="section-divider">Über uns</div>
+      <div class="field-group">
+        <label class="field-label">Über uns – Überschrift</label>
+        <input class="admin-input" id="f-about-title" value="Kochen mit Überzeugung" oninput="update('about-title',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Punkt 1 – Titel</label>
+        <input class="admin-input" id="f-f1t" value="Lokale Produzenten" oninput="update('f1t',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Punkt 1 – Text</label>
+        <textarea class="admin-textarea" id="f-f1d" oninput="update('f1d',this.value)">Wir arbeiten ausschließlich mit Bauernhöfen und Erzeugern aus einem Umkreis von 100 km zusammen.</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Punkt 2 – Titel</label>
+        <input class="admin-input" id="f-f2t" value="Saisonale Karte" oninput="update('f2t',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Punkt 2 – Text</label>
+        <textarea class="admin-textarea" id="f-f2d" oninput="update('f2d',this.value)">Unsere Speisekarte wechselt mit den Jahreszeiten – für maximale Frische und Geschmack.</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Punkt 3 – Titel</label>
+        <input class="admin-input" id="f-f3t" value="Handwerk & Leidenschaft" oninput="update('f3t',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Punkt 3 – Text</label>
+        <textarea class="admin-textarea" id="f-f3d" oninput="update('f3d',this.value)">Küchenchef Marco Brandt kocht seit 20 Jahren – jedes Gericht ist eine Liebeserklärung.</textarea>
+      </div>
+
+      <div class="section-divider">Kundenbewertung</div>
+      <div class="field-group">
+        <label class="field-label">Zitat</label>
+        <textarea class="admin-textarea" id="f-quote" oninput="update('quote',this.value)">"Das beste Restaurant in Frankfurt. Das Entrecôte war ein absolutes Erlebnis – und das Ambiente einfach einzigartig warm und stilvoll."</textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Autor</label>
+        <input class="admin-input" id="f-quote-author" value="Sarah K., Google Bewertung" oninput="update('quote-author',this.value)">
+      </div>
+
+      <button class="admin-save" onclick="saveAll()">Alle Änderungen speichern</button>
+      <div class="save-feedback" id="save-feedback">✓ Gespeichert!</div>
+    </div>
+
+    <!-- TAB: SPEISEKARTE -->
+    <div class="tab-content" id="tab-speisekarte">
+      <div class="section-divider">Gerichte bearbeiten</div>
+      <div id="menu-items-admin"></div>
+      <button id="add-menu-btn" onclick="addMenuItem()">+ Gericht hinzufügen</button>
+      <button class="admin-save" onclick="saveAll()">Speichern</button>
+      <div class="save-feedback" id="save-feedback2">✓ Gespeichert!</div>
+    </div>
+
+    <!-- TAB: DESIGN -->
+    <div class="tab-content" id="tab-design">
+      <div class="section-divider">Farben</div>
+      <div class="color-row">
+        <div class="field-group">
+          <label class="field-label">Akzentfarbe (Gold)</label>
+          <div class="color-field">
+            <input type="color" id="c-gold" value="#C8972A" oninput="updateColor('--gold',this.value)">
+            <span>Hauptakzent</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Button-Farbe</label>
+          <div class="color-field">
+            <input type="color" id="c-ember" value="#D4410B" oninput="updateColor('--ember',this.value)">
+            <span>CTA Buttons</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Hintergrund</label>
+          <div class="color-field">
+            <input type="color" id="c-dark" value="#1A1208" oninput="updateColor('--dark',this.value)">
+            <span>Hintergrund</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Textfarbe</label>
+          <div class="color-field">
+            <input type="color" id="c-cream" value="#F5F0E8" oninput="updateColor('--cream',this.value)">
+            <span>Haupttext</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider">Schrift</div>
+      <div class="field-group">
+        <label class="field-label">Überschrift-Schrift</label>
+        <select class="admin-select" onchange="updateFont('heading',this.value)">
+          <option value="'Playfair Display', serif" selected>Playfair Display (elegant)</option>
+          <option value="'Georgia', serif">Georgia (klassisch)</option>
+          <option value="'DM Sans', sans-serif">DM Sans (modern)</option>
+          <option value="'Courier New', monospace">Courier New (retro)</option>
+        </select>
+      </div>
+
+      <div class="section-divider">Reservierungs-Bereich</div>
+      <div class="field-group">
+        <label class="field-label">Hintergrundfarbe</label>
+        <div class="color-field">
+          <input type="color" id="c-res" value="#D4410B" oninput="updateResBg(this.value)">
+          <span>Reservierungs-Sektion</span>
+        </div>
+      </div>
+
+      <button class="admin-save" onclick="saveAll()">Design speichern</button>
+      <div class="save-feedback" id="save-feedback3">✓ Gespeichert!</div>
+    </div>
+
+    <!-- TAB: KONTAKT -->
+    <div class="tab-content" id="tab-kontakt">
+      <div class="section-divider">Kontaktdaten</div>
+      <div class="field-group">
+        <label class="field-label">Adresse</label>
+        <input class="admin-input" id="f-address" value="Berger Straße 42 · 60316 Frankfurt am Main" oninput="update('address',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Öffnungszeiten</label>
+        <input class="admin-input" id="f-hours" value="Di–Sa 18:00–23:00 · So 12:00–16:00" oninput="update('hours',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Telefon</label>
+        <input class="admin-input" id="f-phone" value="+49 69 1234567" oninput="update('phone',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">E-Mail</label>
+        <input class="admin-input" id="f-email" value="info@feuerundseele.de" oninput="update('email',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Navigationsmenü Punkte (kommagetrennt)</label>
+        <input class="admin-input" id="f-navlinks" value="Speisekarte,Über uns,Reservierung" oninput="update('navlinks',this.value)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Trennlinie Kategorien (kommagetrennt)</label>
+        <input class="admin-input" id="f-cats" value="Vorspeisen,Hauptgerichte,Desserts,Weine" oninput="update('cats',this.value)">
+      </div>
+
+      <button class="admin-save" onclick="saveAll()">Speichern</button>
+      <div class="save-feedback" id="save-feedback4">✓ Gespeichert!</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== WEBSITE ===== -->
+<nav>
+  <div class="nav-logo" id="w-name">Feuer & Seele</div>
+  <ul class="nav-links" id="w-navlinks">
+    <li><a href="#menu">Speisekarte</a></li>
+    <li><a href="#über-uns">Über uns</a></li>
+    <li><a href="#reservierung">Reservierung</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('reservierung').scrollIntoView({behavior:'smooth'})">Tisch reservieren</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-left">
+    <span class="hero-tag" id="w-tag">Seit 2008 · Frankfurt am Main</span>
+    <h1 class="hero-title" id="w-slogan">Wo Feuer auf <em>Seele</em> trifft.</h1>
+    <p class="hero-desc" id="w-desc">Handgemachte Küche mit Leidenschaft. Jedes Gericht erzählt eine Geschichte – von lokalen Produzenten, ehrlichen Zutaten und echtem Handwerk.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">Speisekarte</button>
+      <button class="btn-secondary" onclick="document.getElementById('reservierung').scrollIntoView({behavior:'smooth'})">Tisch reservieren</button>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-container">
+      <div class="hero-plate"><span class="plate-emoji">🍽️</span></div>
+      <div class="hero-badge"><strong id="w-rating">★ 4.9</strong>Google<br>Reviews</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider" id="w-divider">
+  <span>Vorspeisen</span>
+  <span>Hauptgerichte</span>
+  <span>Desserts</span>
+  <span>Weine</span>
+</div>
+
+<section class="section" id="menu">
+  <div class="section-header">
+    <span class="section-tag">Unsere Küche</span>
+    <h2 class="section-title">Ausgewählte <em>Highlights</em></h2>
+  </div>
+  <div class="menu-grid" id="w-menu-grid"></div>
+</section>
+
+<section id="über-uns">
+  <div class="feature-split">
+    <div class="feature-visual"><span class="feature-icon">👨‍🍳</span></div>
+    <div class="feature-content">
+      <span class="section-tag">Unsere Geschichte</span>
+      <h2 class="section-title" style="text-align:left" id="w-about-title">Kochen mit <em>Überzeugung</em></h2>
+      <ul class="feature-list">
+        <li><div class="dot"></div><div><strong id="w-f1t">Lokale Produzenten</strong><p id="w-f1d">Wir arbeiten ausschließlich mit Bauernhöfen und Erzeugern aus einem Umkreis von 100 km zusammen.</p></div></li>
+        <li><div class="dot"></div><div><strong id="w-f2t">Saisonale Karte</strong><p id="w-f2d">Unsere Speisekarte wechselt mit den Jahreszeiten – für maximale Frische und Geschmack.</p></div></li>
+        <li><div class="dot"></div><div><strong id="w-f3t">Handwerk & Leidenschaft</strong><p id="w-f3d">Küchenchef Marco Brandt kocht seit 20 Jahren – jedes Gericht ist eine Liebeserklärung.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="testimonial-section">
+  <div class="stars">★ ★ ★ ★ ★</div>
+  <p class="testimonial-quote" id="w-quote">"Das beste Restaurant in Frankfurt. Das Entrecôte war ein absolutes Erlebnis – und das Ambiente einfach einzigartig warm und stilvoll."</p>
+  <span class="testimonial-author" id="w-quote-author">— Sarah K., Google Bewertung</span>
+</div>
+
+<section class="reservation-section" id="reservierung" style="background:#D4410B">
+  <span class="section-tag" style="color:rgba(255,255,255,0.7)">Wir freuen uns auf Sie</span>
+  <h2 class="section-title" style="color:white">Tisch reservieren</h2>
+  <div class="reservation-form">
+    <input class="res-input" type="text" placeholder="Ihr Name">
+    <input class="res-input" type="date">
+    <input class="res-input" type="text" placeholder="Personen">
+    <button class="res-btn" style="background:var(--dark);color:var(--gold)">Anfragen</button>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo" id="w-footer-name">Feuer & Seele</div>
+  <div class="footer-info">
+    <div id="w-address">Berger Straße 42 · 60316 Frankfurt am Main</div>
+    <div id="w-hours">Di–Sa 18:00–23:00 · So 12:00–16:00</div>
+    <div id="w-contact">+49 69 1234567 · info@feuerundseele.de</div>
+  </div>
+  <span class="footer-copy" id="w-copy">© 2025 Feuer & Seele</span>
+</footer>
+
+<script>
+// ===== DATA =====
+let menuItems = [
+  {name:'Geröstete Rote Bete',price:'14 €',desc:'Mit Ziegenkäse, Walnusskruste und Wildkräutern aus der Region',badge:'Vegetarisch'},
+  {name:'Beef Tatar klassisch',price:'18 €',desc:'Handgeschnittenes Rinderfilet, Kapern, Eigelb, geröstetes Sauerteigbrot',badge:"Chef's Pick"},
+  {name:'Kürbissuppe',price:'11 €',desc:'Hokkaido-Kürbis, Ingwer, Kokosmilch, geröstete Kürbiskerne',badge:'Vegan'},
+  {name:'Entrecôte vom Grill',price:'38 €',desc:'300g Dry-Aged Beef, Kräuterbutter, Trüffel-Jus, Gratin Dauphinois',badge:'Signature'},
+  {name:'Atlantischer Lachs',price:'29 €',desc:'Gebratenes Lachsfilet, Fenchel-Orangen-Salat, Safransauce',badge:'Frisch'},
+  {name:'Crème Brûlée',price:'9 €',desc:'Klassisch mit Vanille aus Madagaskar, karamellisierte Kruste',badge:'Dessert'}
+];
+
+// ===== ADMIN TOGGLE =====
+function toggleAdmin(){
+  const p = document.getElementById('admin-panel');
+  p.classList.toggle('open');
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== LIVE UPDATE =====
+const map = {
+  'name':['w-name','w-footer-name'],
+  'slogan':['w-slogan'],
+  'desc':['w-desc'],
+  'tag':['w-tag'],
+  'rating':['w-rating'],
+  'about-title':['w-about-title'],
+  'f1t':['w-f1t'],'f1d':['w-f1d'],
+  'f2t':['w-f2t'],'f2d':['w-f2d'],
+  'f3t':['w-f3t'],'f3d':['w-f3d'],
+  'quote':['w-quote'],
+  'quote-author':['w-quote-author'],
+  'address':['w-address'],
+  'hours':['w-hours'],
+};
+
+function update(key, val){
+  if(map[key]) map[key].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = val;
+  });
+  if(key==='name'){
+    document.title = val + ' – Restaurant';
+    document.getElementById('w-copy').textContent = '© 2025 ' + val;
+  }
+  if(key==='phone'||key==='email'){
+    const p = document.getElementById('f-phone')?.value||'';
+    const e = document.getElementById('f-email')?.value||'';
+    const el = document.getElementById('w-contact');
+    if(el) el.textContent = p + ' · ' + e;
+  }
+  if(key==='navlinks'){
+    const links = val.split(',').map(l=>l.trim()).filter(Boolean);
+    const nav = document.getElementById('w-navlinks');
+    nav.innerHTML = links.map(l=>`<li><a href="#${l.toLowerCase().replace(/\s/g,'-')}">${l}</a></li>`).join('');
+  }
+  if(key==='cats'){
+    const cats = val.split(',').map(c=>c.trim()).filter(Boolean);
+    const div = document.getElementById('w-divider');
+    div.innerHTML = cats.map(c=>`<span>${c}</span>`).join('');
+  }
+}
+
+function updateColor(varName, val){
+  document.documentElement.style.setProperty(varName, val);
+}
+
+function updateResBg(val){
+  document.getElementById('reservierung').style.background = val;
+}
+
+function updateFont(type, val){
+  if(type==='heading'){
+    document.querySelectorAll('.section-title, .hero-title, .nav-logo, .footer-logo, .testimonial-quote, .menu-item-name').forEach(el=>{
+      el.style.fontFamily = val;
+    });
+  }
+}
+
+// ===== MENU =====
+function renderMenuAdmin(){
+  const container = document.getElementById('menu-items-admin');
+  container.innerHTML = menuItems.map((item,i)=>`
+    <div class="menu-admin-item">
+      <div class="menu-admin-item-header">
+        <span>Gericht ${i+1}</span>
+        <button class="menu-delete-btn" onclick="deleteMenuItem(${i})">✕</button>
+      </div>
+      <div class="mini-grid">
+        <div class="field-group" style="margin:0 0 0.75rem">
+          <label class="field-label">Name</label>
+          <input class="admin-input" value="${item.name}" oninput="updateMenuItem(${i},'name',this.value)">
+        </div>
+        <div class="field-group" style="margin:0 0 0.75rem">
+          <label class="field-label">Preis</label>
+          <input class="admin-input" value="${item.price}" oninput="updateMenuItem(${i},'price',this.value)">
+        </div>
+      </div>
+      <div class="field-group" style="margin:0 0 0.75rem">
+        <label class="field-label">Beschreibung</label>
+        <textarea class="admin-textarea" style="min-height:60px" oninput="updateMenuItem(${i},'desc',this.value)">${item.desc}</textarea>
+      </div>
+      <div class="field-group" style="margin:0">
+        <label class="field-label">Badge (z.B. Vegan, Signature)</label>
+        <input class="admin-input" value="${item.badge||''}" oninput="updateMenuItem(${i},'badge',this.value)">
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateMenuItem(i, key, val){
+  menuItems[i][key] = val;
+  renderMenuGrid();
+}
+
+function deleteMenuItem(i){
+  menuItems.splice(i,1);
+  renderMenuAdmin();
+  renderMenuGrid();
+}
+
+function addMenuItem(){
+  menuItems.push({name:'Neues Gericht',price:'0 €',desc:'Beschreibung hier eingeben',badge:'Neu'});
+  renderMenuAdmin();
+  renderMenuGrid();
+}
+
+function renderMenuGrid(){
+  const grid = document.getElementById('w-menu-grid');
+  grid.innerHTML = menuItems.map(item=>`
+    <div class="menu-item">
+      <div class="menu-item-top">
+        <span class="menu-item-name">${item.name}</span>
+        <span class="menu-price">${item.price}</span>
+      </div>
+      <p class="menu-desc">${item.desc}</p>
+      ${item.badge ? `<span class="menu-badge">${item.badge}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+// ===== SAVE =====
+function saveAll(){
+  const data = {
+    fields: {},
+    menuItems: menuItems,
+    colors: {
+      gold: document.getElementById('c-gold')?.value,
+      ember: document.getElementById('c-ember')?.value,
+      dark: document.getElementById('c-dark')?.value,
+      cream: document.getElementById('c-cream')?.value,
+    }
+  };
+  ['name','slogan','desc','tag','rating','about-title','f1t','f1d','f2t','f2d','f3t','f3d','quote','quote-author','address','hours','phone','email','navlinks','cats'].forEach(k=>{
+    const el = document.getElementById('f-'+k);
+    if(el) data.fields[k] = el.value;
+  });
+  localStorage.setItem('restaurant-config', JSON.stringify(data));
+  ['save-feedback','save-feedback2','save-feedback3','save-feedback4'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
+  });
+}
+
+function loadSaved(){
+  const raw = localStorage.getItem('restaurant-config');
+  if(!raw) return;
+  try{
+    const data = JSON.parse(raw);
+    if(data.fields) Object.entries(data.fields).forEach(([k,v])=>{
+      const el = document.getElementById('f-'+k);
+      if(el) el.value = v;
+      update(k, v);
+    });
+    if(data.menuItems) menuItems = data.menuItems;
+    if(data.colors){
+      if(data.colors.gold){document.getElementById('c-gold').value=data.colors.gold;updateColor('--gold',data.colors.gold)}
+      if(data.colors.ember){document.getElementById('c-ember').value=data.colors.ember;updateColor('--ember',data.colors.ember)}
+      if(data.colors.dark){document.getElementById('c-dark').value=data.colors.dark;updateColor('--dark',data.colors.dark)}
+      if(data.colors.cream){document.getElementById('c-cream').value=data.colors.cream;updateColor('--cream',data.colors.cream)}
+    }
+  }catch(e){}
+}
+
+// ===== INIT =====
+renderMenuGrid();
+renderMenuAdmin();
+loadSaved();
+</script>
+</body>
+</html>
