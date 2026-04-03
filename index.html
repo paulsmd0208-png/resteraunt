@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- saved from url=(0045)file:///C:/Users/Paul/Downloads/index_11.html -->
+<!-- saved from url=(0045)file:///C:/Users/Paul/Downloads/index_14.html -->
 <html lang="de" style="--gold: #c8972a; --ember: #d4410b; --dark: #1a1208; --cream: #f5f0e8;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="page-title">Bäckerstube – Restaurant</title>
+<title id="page-title">Mamas Bäckerei – Restaurant</title>
 <link href="./index_files/css2" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -392,14 +392,14 @@ footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;
   <button class="nav-hamburger open" onclick="closeMobileMenu()" style="position:absolute;top:1.5rem;right:1.5rem">
     <span></span><span></span><span></span>
   </button>
-  <a href="file:///C:/Users/Paul/Downloads/index_11.html#menu" onclick="closeMobileMenu()">Speisekarte</a>
-  <a href="file:///C:/Users/Paul/Downloads/index_11.html#ueber-uns" onclick="closeMobileMenu()">Über uns</a>
-  <a href="file:///C:/Users/Paul/Downloads/index_11.html#reservierung" onclick="closeMobileMenu()">Reservierung</a>
+  <a href="file:///C:/Users/Paul/Downloads/index_14.html#menu" onclick="closeMobileMenu()">Speisekarte</a>
+  <a href="file:///C:/Users/Paul/Downloads/index_14.html#ueber-uns" onclick="closeMobileMenu()">Über uns</a>
+  <a href="file:///C:/Users/Paul/Downloads/index_14.html#reservierung" onclick="closeMobileMenu()">Reservierung</a>
   <button class="nav-cta-mobile" onclick="closeMobileMenu();document.getElementById(&#39;reservierung&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Tisch reservieren</button>
 </div>
 
 <nav>
-  <div class="nav-logo" id="w-name">Bäckerstube</div>
+  <div class="nav-logo" id="w-name">Mamas Bäckerei</div>
   <ul class="nav-links" id="w-navlinks"></ul>
   <button class="nav-cta" onclick="document.getElementById(&#39;reservierung&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Tisch reservieren</button>
   <button class="nav-hamburger" id="hamburger" onclick="openMobileMenu()" aria-label="Menü öffnen">
@@ -409,7 +409,7 @@ footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;
 
 <section class="hero">
   <div class="hero-left">
-    <span class="hero-tag" id="w-tag">Rühlerfeld ; 2022</span>
+    <span class="hero-tag" id="w-tag">Feldkamp; 2022</span>
     <h1 class="hero-title" id="w-slogan">Frisch. Handgemacht. Mit Liebe gebacken.</h1>
     <p class="hero-desc" id="w-desc">Willkommen in der Bäckerstube – deinem Ort für ofenfrische Backwaren, aromatischen Kaffee und gemütliche Momente. Wir verbinden traditionelles Bäckerhandwerk mit modernen Ideen und hochwertigen Zutaten aus der Region.</p>
     <div class="hero-btns">
@@ -516,13 +516,13 @@ footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;
 </section>
 
 <footer>
-  <div class="footer-logo" id="w-footer-name">Bäckerstube</div>
+  <div class="footer-logo" id="w-footer-name">Mamas Bäckerei</div>
   <div class="footer-info">
-    <div id="w-address">Rühlerfeld</div>
+    <div id="w-address">Feldkamp</div>
     <div id="w-hours">9-22 Uhr</div>
     <div id="w-contact">+49 176 48980828 · schmidtpaul.ecom@gmail.com</div>
   </div>
-  <span class="footer-copy" id="w-copy">© 2025 Bäckerstube</span>
+  <span class="footer-copy" id="w-copy">© 2025 Mamas Bäckerei</span>
 </footer>
 </div><!-- end main-content -->
 
@@ -687,44 +687,63 @@ function renderMenuGrid() {
     </div>`).join('');
 }
 
+// ===== CACHE HELPERS =====
+const CACHE_KEY = 'restaurant_cache_v1';
+
+function applyData(data) {
+  const fields = ['name','slogan','desc','tag','rating','about-title','f1t','f1d','f2t','f2d','f3t','f3d','quote','quote-author','address','hours','phone','email','navlinks','cats'];
+  fields.forEach(k => {
+    if (data[k] !== undefined) {
+      const el = document.getElementById('f-' + k);
+      if (el) el.value = data[k];
+      liveUpdate(k, data[k]);
+    }
+  });
+  if (data['color-gold']) { document.getElementById('c-gold').value = data['color-gold']; updateColor('--gold', data['color-gold']); }
+  if (data['color-ember']) { document.getElementById('c-ember').value = data['color-ember']; updateColor('--ember', data['color-ember']); }
+  if (data['color-dark']) { document.getElementById('c-dark').value = data['color-dark']; updateColor('--dark', data['color-dark']); }
+  if (data['color-cream']) { document.getElementById('c-cream').value = data['color-cream']; updateColor('--cream', data['color-cream']); }
+  if (data['menu-items']) {
+    try { menuItems = JSON.parse(data['menu-items']); } catch(e) { setDefaultMenu(); }
+  } else { setDefaultMenu(); }
+  config = data;
+  renderMenuGrid();
+  renderMenuAdmin();
+}
+
+function showPage() {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('main-content').style.opacity = '1';
+}
+
 // ===== GOOGLE SHEETS =====
 async function loadFromSheets() {
+  // 1. Sofort aus Cache laden → Seite erscheint ohne Wartezeit
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    try {
+      applyData(JSON.parse(cached));
+      showPage();
+      setSyncStatus('synced', '✓ Lokal gespeichert – wird aktualisiert…');
+    } catch(e) { /* Cache kaputt, ignorieren */ }
+  } else {
+    setDefaultFields();
+    setDefaultMenu();
+    renderMenuGrid();
+    renderMenuAdmin();
+    showPage();
+  }
+
+  // 2. Im Hintergrund frische Daten von Sheets holen
   try {
     const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
     const data = await res.json();
-
-    // Apply text fields
-    const fields = ['name','slogan','desc','tag','rating','about-title','f1t','f1d','f2t','f2d','f3t','f3d','quote','quote-author','address','hours','phone','email','navlinks','cats'];
-    fields.forEach(k => {
-      if (data[k] !== undefined) {
-        const el = document.getElementById('f-' + k);
-        if (el) el.value = data[k];
-        liveUpdate(k, data[k]);
-      }
-    });
-
-    // Apply colors
-    if (data['color-gold']) { document.getElementById('c-gold').value = data['color-gold']; updateColor('--gold', data['color-gold']); }
-    if (data['color-ember']) { document.getElementById('c-ember').value = data['color-ember']; updateColor('--ember', data['color-ember']); }
-    if (data['color-dark']) { document.getElementById('c-dark').value = data['color-dark']; updateColor('--dark', data['color-dark']); }
-    if (data['color-cream']) { document.getElementById('c-cream').value = data['color-cream']; updateColor('--cream', data['color-cream']); }
-
-    // Apply menu
-    if (data['menu-items']) {
-      try { menuItems = JSON.parse(data['menu-items']); } catch(e) { setDefaultMenu(); }
-    } else { setDefaultMenu(); }
-
-    config = data;
+    applyData(data);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
     setSyncStatus('synced', '✓ Verbunden mit Google Sheets');
   } catch(e) {
     setSyncStatus('error', '⚠ Offline – lokale Daten');
-    setDefaultMenu();
-    setDefaultFields();
   }
-  renderMenuGrid();
-  renderMenuAdmin();
-  document.getElementById('loading-screen').style.display = 'none';
-  document.getElementById('main-content').style.opacity = '1';
 }
 
 async function saveAll() {
@@ -749,6 +768,8 @@ async function saveAll() {
       mode: 'no-cors',
       body: JSON.stringify(data)
     });
+    // Cache sofort aktualisieren → nächstes Laden ist sofort korrekt
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
     setSyncStatus('synced', '✓ Gespeichert in Google Sheets!');
     setTimeout(() => setSyncStatus('synced', '✓ Verbunden mit Google Sheets'), 3000);
   } catch(e) {
