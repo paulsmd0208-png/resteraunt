@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)file:///C:/Users/Paul/Downloads/index_5.html -->
+<html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Feuer &amp; Seele – Restaurant</title>
+<link href="./index_files/css2" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#C8972A;--cream:#F5F0E8;--dark:#1A1208;--ember:#D4410B;--smoke:#8C7A6B}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--cream);overflow-x:hidden}
+
+/* ===== LOGIN OVERLAY ===== */
+#login-overlay{position:fixed;inset:0;background:rgba(15,10,4,0.97);z-index:99999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+#login-overlay.show{display:flex}
+.login-box{background:#0F0A04;border:1px solid rgba(200,151,42,0.3);padding:2.5rem;width:340px;text-align:center}
+.login-box h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.4rem;margin-bottom:0.5rem}
+.login-box p{color:var(--smoke);font-size:0.8rem;margin-bottom:1.5rem}
+.login-input{width:100%;background:rgba(245,240,232,0.05);border:1px solid rgba(200,151,42,0.2);color:var(--cream);padding:0.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;margin-bottom:1rem;border-radius:2px;letter-spacing:0.1em}
+.login-input:focus{border-color:var(--gold)}
+.login-btn{width:100%;background:var(--gold);color:var(--dark);border:none;padding:0.85rem;font-size:0.85rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:2px}
+.login-btn:hover{background:#B8850F}
+.login-error{color:#D4410B;font-size:0.8rem;margin-top:0.75rem;display:none}
+
+/* ===== ADMIN PANEL ===== */
+#admin-toggle{position:fixed;bottom:2rem;right:2rem;z-index:9999;background:var(--gold);color:var(--dark);border:none;border-radius:50px;padding:0.75rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.4);transition:all 0.3s;display:none}
+#admin-toggle:hover{background:#B8850F;transform:translateY(-2px)}
+
+#admin-panel{position:fixed;top:0;right:-480px;width:460px;height:100vh;background:#0F0A04;border-left:1px solid rgba(200,151,42,0.2);z-index:9998;overflow-y:auto;transition:right 0.4s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column}
+#admin-panel.open{right:0}
+
+.admin-header{padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(200,151,42,0.15);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#0F0A04;z-index:10}
+.admin-header-left h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold)}
+.admin-header-left p{font-size:0.75rem;color:var(--smoke);margin-top:0.2rem}
+.admin-header-right{display:flex;gap:0.5rem;align-items:center}
+#admin-logout{background:none;border:1px solid rgba(200,151,42,0.2);color:var(--smoke);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.4rem 0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:2px;transition:all 0.2s}
+#admin-logout:hover{color:var(--ember);border-color:var(--ember)}
+#admin-close{background:none;border:none;color:var(--smoke);font-size:1.4rem;cursor:pointer;transition:color 0.2s}
+#admin-close:hover{color:var(--cream)}
+
+.sync-status{padding:0.6rem 1.5rem;font-size:0.72rem;letter-spacing:0.1em;text-align:center;border-bottom:1px solid rgba(200,151,42,0.1)}
+.sync-status.synced{color:#4CAF50}
+.sync-status.syncing{color:var(--gold)}
+.sync-status.error{color:var(--ember)}
+
+.admin-tabs{display:flex;border-bottom:1px solid rgba(200,151,42,0.15);background:#0F0A04;position:sticky;top:72px;z-index:9}
+.admin-tab{flex:1;padding:0.75rem;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;background:none;border:none;color:var(--smoke);cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent}
+.admin-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+.admin-body{padding:1.5rem;flex:1}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.field-group{margin-bottom:1.25rem}
+.field-label{font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--smoke);display:block;margin-bottom:0.5rem}
+.admin-input,.admin-textarea,.admin-select{width:100%;background:rgba(245,240,232,0.05);border:1px solid rgba(200,151,42,0.2);color:var(--cream);padding:0.65rem 0.9rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;border-radius:2px}
+.admin-input:focus,.admin-textarea:focus{border-color:var(--gold)}
+.admin-textarea{resize:vertical;min-height:80px;line-height:1.6}
+.admin-select{cursor:pointer}
+.admin-select option{background:#1A1208}
+
+.color-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.color-field{display:flex;align-items:center;gap:0.75rem}
+.color-field input[type=color]{width:40px;height:36px;border:1px solid rgba(200,151,42,0.3);background:none;cursor:pointer;padding:2px;border-radius:2px}
+.color-field span{font-size:0.8rem;color:var(--smoke)}
+
+.section-divider{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);padding:0.75rem 0;border-bottom:1px solid rgba(200,151,42,0.1);margin:1rem 0 1.25rem;display:flex;align-items:center;gap:0.75rem}
+.section-divider::after{content:'';flex:1;height:1px;background:rgba(200,151,42,0.1)}
+
+.menu-admin-item{background:rgba(245,240,232,0.03);border:1px solid rgba(200,151,42,0.1);border-radius:2px;padding:1rem;margin-bottom:1rem}
+.menu-admin-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem}
+.menu-admin-top span{font-size:0.8rem;color:var(--gold);font-weight:500}
+.menu-delete-btn{background:none;border:none;color:var(--smoke);cursor:pointer;font-size:1rem;transition:color 0.2s}
+.menu-delete-btn:hover{color:#D4410B}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+
+#add-menu-btn{width:100%;background:none;border:1px dashed rgba(200,151,42,0.3);color:var(--gold);padding:0.75rem;font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;border-radius:2px;margin-top:0.5rem}
+#add-menu-btn:hover{border-color:var(--gold);background:rgba(200,151,42,0.05)}
+
+.admin-save{width:100%;background:var(--gold);color:var(--dark);border:none;padding:1rem;font-size:0.85rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:1.5rem;border-radius:2px}
+.admin-save:hover{background:#B8850F}
+.admin-save:disabled{background:#7a6020;cursor:not-allowed}
+
+/* ===== WEBSITE ===== */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 4rem;background:rgba(26,18,8,0.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(200,151,42,0.15)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:rgba(245,240,232,0.7);text-decoration:none;font-size:0.85rem;letter-spacing:0.12em;text-transform:uppercase;transition:color 0.3s}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{background:var(--ember);color:white;padding:0.55rem 1.5rem;border-radius:2px;font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:background 0.3s}
+.nav-cta:hover{background:#B8360A}
+
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+.hero-left{display:flex;flex-direction:column;justify-content:center;padding:8rem 4rem 4rem 5rem}
+.hero-tag{display:inline-flex;align-items:center;gap:0.6rem;font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem}
+.hero-tag::before{content:'';display:inline-block;width:2rem;height:1px;background:var(--gold)}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(3rem,5vw,5rem);line-height:1.05;margin-bottom:1.5rem}
+.hero-title em{color:var(--gold);font-style:italic}
+.hero-desc{color:rgba(245,240,232,0.6);font-size:1rem;line-height:1.8;max-width:38ch;margin-bottom:2.5rem;font-weight:300}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-primary{background:var(--gold);color:var(--dark);padding:0.9rem 2rem;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.3s}
+.btn-secondary{background:transparent;color:var(--cream);padding:0.9rem 2rem;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:1px solid rgba(245,240,232,0.3);font-family:'DM Sans',sans-serif;transition:all 0.3s}
+.hero-right{position:relative;overflow:hidden}
+.hero-img-container{width:100%;height:100%;background:linear-gradient(135deg,#2D1A0A 0%,#1A1208 60%);display:flex;align-items:center;justify-content:center}
+.hero-plate{width:340px;height:340px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#3D2010,#1A0D05);border:1px solid rgba(200,151,42,0.3);display:flex;align-items:center;justify-content:center}
+.plate-emoji{font-size:7rem;animation:float 4s ease-in-out infinite}
+.hero-badge{position:absolute;top:25%;right:10%;background:var(--ember);color:white;width:90px;height:90px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Playfair Display',serif;line-height:1.1;text-align:center;font-size:0.65rem}
+.hero-badge strong{font-size:1.3rem;display:block}
+
+.divider{display:flex;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;border-top:1px solid rgba(200,151,42,0.1);border-bottom:1px solid rgba(200,151,42,0.1);flex-wrap:wrap}
+.divider span{font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--smoke)}
+.divider::before,.divider::after{content:'◆';color:var(--gold);font-size:0.5rem}
+
+.section{padding:6rem 5rem}
+.section-header{text-align:center;margin-bottom:4rem}
+.section-tag-el{font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:1rem}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,3rem);line-height:1.2}
+.section-title em{color:var(--gold);font-style:italic}
+
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(200,151,42,0.1)}
+.menu-item{background:var(--dark);padding:2.5rem 2rem;transition:background 0.3s}
+.menu-item:hover{background:#221608}
+.menu-item-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
+.menu-item-name{font-family:'Playfair Display',serif;font-size:1.2rem;flex:1;padding-right:1rem}
+.menu-price{color:var(--gold);font-size:1rem;font-weight:500;white-space:nowrap}
+.menu-desc{font-size:0.85rem;color:var(--smoke);line-height:1.6;font-weight:300}
+.menu-badge{display:inline-block;margin-top:1rem;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.25rem 0.75rem;border:1px solid rgba(200,151,42,0.3);color:var(--gold)}
+
+.feature-split{display:grid;grid-template-columns:1fr 1fr}
+.feature-visual{background:linear-gradient(160deg,#2D1A0A,#150E05);display:flex;align-items:center;justify-content:center;padding:5rem;position:relative;overflow:hidden}
+.feature-visual::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;border:1px solid rgba(200,151,42,0.08);top:50%;left:50%;transform:translate(-50%,-50%)}
+.feature-icon{font-size:5rem;position:relative;z-index:1}
+.feature-content{padding:5rem 4rem;display:flex;flex-direction:column;justify-content:center}
+.feature-list{list-style:none;margin-top:2rem;display:flex;flex-direction:column;gap:1.5rem}
+.feature-list li{display:flex;gap:1rem;align-items:flex-start}
+.feature-list .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);margin-top:0.5rem;flex-shrink:0}
+.feature-list p{font-size:0.9rem;color:rgba(245,240,232,0.65);line-height:1.7;font-weight:300}
+.feature-list strong{display:block;color:var(--cream);font-size:0.95rem;margin-bottom:0.2rem}
+
+.testimonial-section{background:#100C05;padding:6rem 5rem;text-align:center}
+.testimonial-quote{font-family:'Playfair Display',serif;font-size:clamp(1.3rem,2.5vw,2rem);line-height:1.5;max-width:700px;margin:0 auto 2rem;font-style:italic}
+.testimonial-author{font-size:0.8rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--smoke)}
+.stars{color:var(--gold);font-size:1rem;margin-bottom:1.5rem;letter-spacing:0.2em}
+
+.reservation-section{padding:5rem;text-align:center}
+.reservation-form{display:flex;gap:1rem;justify-content:center;margin-top:2.5rem;flex-wrap:wrap}
+.res-input{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.9rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;min-width:180px;outline:none}
+.res-input::placeholder{color:rgba(255,255,255,0.6)}
+.res-btn{padding:0.9rem 2.5rem;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;font-weight:500}
+
+footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem}
+.footer-logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold)}
+.footer-info{font-size:0.8rem;color:var(--smoke);line-height:2}
+.footer-copy{font-size:0.75rem;color:rgba(140,122,107,0.5)}
+
+.loading-screen{position:fixed;inset:0;background:var(--dark);z-index:99998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem}
+.loading-screen p{color:var(--smoke);font-size:0.85rem;letter-spacing:0.15em;text-transform:uppercase}
+.spinner{width:32px;height:32px;border:2px solid rgba(200,151,42,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loading-screen" style="display: none;">
+  <div class="spinner"></div>
+  <p>Inhalte werden geladen...</p>
+</div>
+
+<!-- LOGIN -->
+<div id="login-overlay">
+  <div class="login-box">
+    <h2>Admin-Bereich</h2>
+    <p>Nur für autorisierte Benutzer</p>
+    <input class="login-input" type="password" id="pw-input" placeholder="Passwort eingeben" onkeydown="if(event.key===&#39;Enter&#39;)checkLogin()">
+    <button class="login-btn" onclick="checkLogin()">Einloggen</button>
+    <div class="login-error" id="login-error">Falsches Passwort!</div>
+  </div>
+</div>
+
+<!-- ADMIN TOGGLE -->
+<button id="admin-toggle" onclick="toggleAdmin()">⚙ Admin</button>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel">
+  <div class="admin-header">
+    <div class="admin-header-left">
+      <h2>Website bearbeiten</h2>
+      <p>Änderungen werden in Google Sheets gespeichert</p>
+    </div>
+    <div class="admin-header-right">
+      <button id="admin-logout" onclick="logout()">Logout</button>
+      <button id="admin-close" onclick="toggleAdmin()">✕</button>
+    </div>
+  </div>
+  <div class="sync-status synced" id="sync-status">✓ Verbunden mit Google Sheets</div>
+
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchTab(&#39;allgemein&#39;,this)">Allgemein</button>
+    <button class="admin-tab" onclick="switchTab(&#39;speisekarte&#39;,this)">Speisekarte</button>
+    <button class="admin-tab" onclick="switchTab(&#39;design&#39;,this)">Design</button>
+    <button class="admin-tab" onclick="switchTab(&#39;kontakt&#39;,this)">Kontakt</button>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- ALLGEMEIN -->
+    <div class="tab-content active" id="tab-allgemein">
+      <div class="section-divider">Restaurant Info</div>
+      <div class="field-group"><label class="field-label">Restaurant Name</label><input class="admin-input" id="f-name" oninput="liveUpdate(&#39;name&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Slogan / Hero Titel</label><input class="admin-input" id="f-slogan" oninput="liveUpdate(&#39;slogan&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Beschreibung (Hero)</label><textarea class="admin-textarea" id="f-desc" oninput="liveUpdate(&#39;desc&#39;,this.value)"></textarea></div>
+      <div class="field-group"><label class="field-label">Standort &amp; Jahr</label><input class="admin-input" id="f-tag" oninput="liveUpdate(&#39;tag&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Google Bewertung</label><input class="admin-input" id="f-rating" oninput="liveUpdate(&#39;rating&#39;,this.value)"></div>
+      <div class="section-divider">Über uns</div>
+      <div class="field-group"><label class="field-label">Überschrift</label><input class="admin-input" id="f-about-title" oninput="liveUpdate(&#39;about-title&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Punkt 1 – Titel</label><input class="admin-input" id="f-f1t" oninput="liveUpdate(&#39;f1t&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Punkt 1 – Text</label><textarea class="admin-textarea" id="f-f1d" oninput="liveUpdate(&#39;f1d&#39;,this.value)"></textarea></div>
+      <div class="field-group"><label class="field-label">Punkt 2 – Titel</label><input class="admin-input" id="f-f2t" oninput="liveUpdate(&#39;f2t&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Punkt 2 – Text</label><textarea class="admin-textarea" id="f-f2d" oninput="liveUpdate(&#39;f2d&#39;,this.value)"></textarea></div>
+      <div class="field-group"><label class="field-label">Punkt 3 – Titel</label><input class="admin-input" id="f-f3t" oninput="liveUpdate(&#39;f3t&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Punkt 3 – Text</label><textarea class="admin-textarea" id="f-f3d" oninput="liveUpdate(&#39;f3d&#39;,this.value)"></textarea></div>
+      <div class="section-divider">Kundenbewertung</div>
+      <div class="field-group"><label class="field-label">Zitat</label><textarea class="admin-textarea" id="f-quote" oninput="liveUpdate(&#39;quote&#39;,this.value)"></textarea></div>
+      <div class="field-group"><label class="field-label">Autor</label><input class="admin-input" id="f-quote-author" oninput="liveUpdate(&#39;quote-author&#39;,this.value)"></div>
+      <button class="admin-save" onclick="saveAll()">💾 In Google Sheets speichern</button>
+    </div>
+
+    <!-- SPEISEKARTE -->
+    <div class="tab-content" id="tab-speisekarte">
+      <div class="section-divider">Gerichte bearbeiten</div>
+      <div id="menu-items-admin">
+    <div class="menu-admin-item">
+      <div class="menu-admin-top"><span>Gericht 1</span><button class="menu-delete-btn" onclick="deleteMenuItem(0)">✕</button></div>
+      <div class="mini-grid">
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Name</label><input class="admin-input" value="Geröstete Rote Bete" oninput="updateMenuItem(0,&#39;name&#39;,this.value)"></div>
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Preis</label><input class="admin-input" value="14 €" oninput="updateMenuItem(0,&#39;price&#39;,this.value)"></div>
+      </div>
+      <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Beschreibung</label><textarea class="admin-textarea" style="min-height:60px" oninput="updateMenuItem(0,&#39;desc&#39;,this.value)">Mit Ziegenkäse, Walnusskruste und Wildkräutern</textarea></div>
+      <div class="field-group" style="margin:0"><label class="field-label">Badge</label><input class="admin-input" value="Vegetarisch" oninput="updateMenuItem(0,&#39;badge&#39;,this.value)"></div>
+    </div>
+    <div class="menu-admin-item">
+      <div class="menu-admin-top"><span>Gericht 2</span><button class="menu-delete-btn" onclick="deleteMenuItem(1)">✕</button></div>
+      <div class="mini-grid">
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Name</label><input class="admin-input" value="Beef Tatar klassisch" oninput="updateMenuItem(1,&#39;name&#39;,this.value)"></div>
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Preis</label><input class="admin-input" value="18 €" oninput="updateMenuItem(1,&#39;price&#39;,this.value)"></div>
+      </div>
+      <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Beschreibung</label><textarea class="admin-textarea" style="min-height:60px" oninput="updateMenuItem(1,&#39;desc&#39;,this.value)">Handgeschnittenes Rinderfilet, Kapern, Eigelb</textarea></div>
+      <div class="field-group" style="margin:0"><label class="field-label">Badge</label><input class="admin-input" value="Chef&#39;s Pick" oninput="updateMenuItem(1,&#39;badge&#39;,this.value)"></div>
+    </div>
+    <div class="menu-admin-item">
+      <div class="menu-admin-top"><span>Gericht 3</span><button class="menu-delete-btn" onclick="deleteMenuItem(2)">✕</button></div>
+      <div class="mini-grid">
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Name</label><input class="admin-input" value="Kürbissuppe" oninput="updateMenuItem(2,&#39;name&#39;,this.value)"></div>
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Preis</label><input class="admin-input" value="11 €" oninput="updateMenuItem(2,&#39;price&#39;,this.value)"></div>
+      </div>
+      <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Beschreibung</label><textarea class="admin-textarea" style="min-height:60px" oninput="updateMenuItem(2,&#39;desc&#39;,this.value)">Hokkaido-Kürbis, Ingwer, Kokosmilch</textarea></div>
+      <div class="field-group" style="margin:0"><label class="field-label">Badge</label><input class="admin-input" value="Vegan" oninput="updateMenuItem(2,&#39;badge&#39;,this.value)"></div>
+    </div>
+    <div class="menu-admin-item">
+      <div class="menu-admin-top"><span>Gericht 4</span><button class="menu-delete-btn" onclick="deleteMenuItem(3)">✕</button></div>
+      <div class="mini-grid">
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Name</label><input class="admin-input" value="Entrecôte vom Grill" oninput="updateMenuItem(3,&#39;name&#39;,this.value)"></div>
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Preis</label><input class="admin-input" value="38 €" oninput="updateMenuItem(3,&#39;price&#39;,this.value)"></div>
+      </div>
+      <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Beschreibung</label><textarea class="admin-textarea" style="min-height:60px" oninput="updateMenuItem(3,&#39;desc&#39;,this.value)">300g Dry-Aged Beef, Kräuterbutter, Trüffel-Jus</textarea></div>
+      <div class="field-group" style="margin:0"><label class="field-label">Badge</label><input class="admin-input" value="Signature" oninput="updateMenuItem(3,&#39;badge&#39;,this.value)"></div>
+    </div>
+    <div class="menu-admin-item">
+      <div class="menu-admin-top"><span>Gericht 5</span><button class="menu-delete-btn" onclick="deleteMenuItem(4)">✕</button></div>
+      <div class="mini-grid">
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Name</label><input class="admin-input" value="Atlantischer Lachs" oninput="updateMenuItem(4,&#39;name&#39;,this.value)"></div>
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Preis</label><input class="admin-input" value="29 €" oninput="updateMenuItem(4,&#39;price&#39;,this.value)"></div>
+      </div>
+      <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Beschreibung</label><textarea class="admin-textarea" style="min-height:60px" oninput="updateMenuItem(4,&#39;desc&#39;,this.value)">Gebratenes Lachsfilet, Fenchel-Orangen-Salat</textarea></div>
+      <div class="field-group" style="margin:0"><label class="field-label">Badge</label><input class="admin-input" value="Frisch" oninput="updateMenuItem(4,&#39;badge&#39;,this.value)"></div>
+    </div>
+    <div class="menu-admin-item">
+      <div class="menu-admin-top"><span>Gericht 6</span><button class="menu-delete-btn" onclick="deleteMenuItem(5)">✕</button></div>
+      <div class="mini-grid">
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Name</label><input class="admin-input" value="Crème Brûlée" oninput="updateMenuItem(5,&#39;name&#39;,this.value)"></div>
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Preis</label><input class="admin-input" value="9 €" oninput="updateMenuItem(5,&#39;price&#39;,this.value)"></div>
+      </div>
+      <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Beschreibung</label><textarea class="admin-textarea" style="min-height:60px" oninput="updateMenuItem(5,&#39;desc&#39;,this.value)">Klassisch mit Vanille aus Madagaskar</textarea></div>
+      <div class="field-group" style="margin:0"><label class="field-label">Badge</label><input class="admin-input" value="Dessert" oninput="updateMenuItem(5,&#39;badge&#39;,this.value)"></div>
+    </div></div>
+      <button id="add-menu-btn" onclick="addMenuItem()">+ Gericht hinzufügen</button>
+      <button class="admin-save" onclick="saveAll()">💾 In Google Sheets speichern</button>
+    </div>
+
+    <!-- DESIGN -->
+    <div class="tab-content" id="tab-design">
+      <div class="section-divider">Farben</div>
+      <div class="color-row">
+        <div class="field-group"><label class="field-label">Akzentfarbe</label><div class="color-field"><input type="color" id="c-gold" value="#C8972A" oninput="updateColor(&#39;--gold&#39;,this.value);liveUpdate(&#39;color-gold&#39;,this.value)"><span>Gold</span></div></div>
+        <div class="field-group"><label class="field-label">Button-Farbe</label><div class="color-field"><input type="color" id="c-ember" value="#D4410B" oninput="updateColor(&#39;--ember&#39;,this.value);liveUpdate(&#39;color-ember&#39;,this.value)"><span>Ember</span></div></div>
+        <div class="field-group"><label class="field-label">Hintergrund</label><div class="color-field"><input type="color" id="c-dark" value="#1A1208" oninput="updateColor(&#39;--dark&#39;,this.value);liveUpdate(&#39;color-dark&#39;,this.value)"><span>Dunkel</span></div></div>
+        <div class="field-group"><label class="field-label">Textfarbe</label><div class="color-field"><input type="color" id="c-cream" value="#F5F0E8" oninput="updateColor(&#39;--cream&#39;,this.value);liveUpdate(&#39;color-cream&#39;,this.value)"><span>Hell</span></div></div>
+      </div>
+      <div class="section-divider">Admin Passwort ändern</div>
+      <div class="field-group"><label class="field-label">Neues Passwort</label><input class="admin-input" type="password" id="f-newpw" placeholder="Neues Passwort eingeben"></div>
+      <div class="field-group"><label class="field-label">Passwort wiederholen</label><input class="admin-input" type="password" id="f-newpw2" placeholder="Wiederholen"></div>
+      <div id="pw-msg" style="font-size:0.8rem;margin-top:0.5rem;display:none"></div>
+      <button class="admin-save" style="margin-top:1rem" onclick="changePassword()">Passwort ändern</button>
+      <button class="admin-save" onclick="saveAll()" style="margin-top:0.75rem">💾 Design speichern</button>
+    </div>
+
+    <!-- KONTAKT -->
+    <div class="tab-content" id="tab-kontakt">
+      <div class="section-divider">Kontaktdaten</div>
+      <div class="field-group"><label class="field-label">Adresse</label><input class="admin-input" id="f-address" oninput="liveUpdate(&#39;address&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Öffnungszeiten</label><input class="admin-input" id="f-hours" oninput="liveUpdate(&#39;hours&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Telefon</label><input class="admin-input" id="f-phone" oninput="liveUpdate(&#39;phone&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">E-Mail</label><input class="admin-input" id="f-email" oninput="liveUpdate(&#39;email&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Navigationslinks (kommagetrennt)</label><input class="admin-input" id="f-navlinks" oninput="liveUpdate(&#39;navlinks&#39;,this.value)"></div>
+      <div class="field-group"><label class="field-label">Kategorien Trennlinie (kommagetrennt)</label><input class="admin-input" id="f-cats" oninput="liveUpdate(&#39;cats&#39;,this.value)"></div>
+      <button class="admin-save" onclick="saveAll()">💾 In Google Sheets speichern</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- WEBSITE -->
+<nav>
+  <div class="nav-logo" id="w-name">Feuer &amp; Seele</div>
+  <ul class="nav-links" id="w-navlinks">
+    <li><a href="file:///C:/Users/Paul/Downloads/index_5.html#menu">Speisekarte</a></li>
+    <li><a href="file:///C:/Users/Paul/Downloads/index_5.html#ueber-uns">Über uns</a></li>
+    <li><a href="file:///C:/Users/Paul/Downloads/index_5.html#reservierung">Reservierung</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById(&#39;reservierung&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Tisch reservieren</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-left">
+    <span class="hero-tag" id="w-tag">Seit 2008 · Frankfurt am Main</span>
+    <h1 class="hero-title" id="w-slogan">Wo Feuer auf <em>Seele</em> trifft.</h1>
+    <p class="hero-desc" id="w-desc">Handgemachte Küche mit Leidenschaft.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById(&#39;menu&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Speisekarte</button>
+      <button class="btn-secondary" onclick="document.getElementById(&#39;reservierung&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Tisch reservieren</button>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-container">
+      <div class="hero-plate"><span class="plate-emoji">🍽️</span></div>
+      <div class="hero-badge"><strong id="w-rating">★ 4.9</strong>Google<br>Reviews</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider" id="w-divider">
+  <span>Vorspeisen</span><span>Hauptgerichte</span><span>Desserts</span><span>Weine</span>
+</div>
+
+<section class="section" id="menu">
+  <div class="section-header">
+    <span class="section-tag-el">Unsere Küche</span>
+    <h2 class="section-title">Ausgewählte <em>Highlights</em></h2>
+  </div>
+  <div class="menu-grid" id="w-menu-grid">
+    <div class="menu-item">
+      <div class="menu-item-top">
+        <span class="menu-item-name">Geröstete Rote Bete</span>
+        <span class="menu-price">14 €</span>
+      </div>
+      <p class="menu-desc">Mit Ziegenkäse, Walnusskruste und Wildkräutern</p>
+      <span class="menu-badge">Vegetarisch</span>
+    </div>
+    <div class="menu-item">
+      <div class="menu-item-top">
+        <span class="menu-item-name">Beef Tatar klassisch</span>
+        <span class="menu-price">18 €</span>
+      </div>
+      <p class="menu-desc">Handgeschnittenes Rinderfilet, Kapern, Eigelb</p>
+      <span class="menu-badge">Chef's Pick</span>
+    </div>
+    <div class="menu-item">
+      <div class="menu-item-top">
+        <span class="menu-item-name">Kürbissuppe</span>
+        <span class="menu-price">11 €</span>
+      </div>
+      <p class="menu-desc">Hokkaido-Kürbis, Ingwer, Kokosmilch</p>
+      <span class="menu-badge">Vegan</span>
+    </div>
+    <div class="menu-item">
+      <div class="menu-item-top">
+        <span class="menu-item-name">Entrecôte vom Grill</span>
+        <span class="menu-price">38 €</span>
+      </div>
+      <p class="menu-desc">300g Dry-Aged Beef, Kräuterbutter, Trüffel-Jus</p>
+      <span class="menu-badge">Signature</span>
+    </div>
+    <div class="menu-item">
+      <div class="menu-item-top">
+        <span class="menu-item-name">Atlantischer Lachs</span>
+        <span class="menu-price">29 €</span>
+      </div>
+      <p class="menu-desc">Gebratenes Lachsfilet, Fenchel-Orangen-Salat</p>
+      <span class="menu-badge">Frisch</span>
+    </div>
+    <div class="menu-item">
+      <div class="menu-item-top">
+        <span class="menu-item-name">Crème Brûlée</span>
+        <span class="menu-price">9 €</span>
+      </div>
+      <p class="menu-desc">Klassisch mit Vanille aus Madagaskar</p>
+      <span class="menu-badge">Dessert</span>
+    </div></div>
+</section>
+
+<section id="ueber-uns">
+  <div class="feature-split">
+    <div class="feature-visual"><span class="feature-icon">👨‍🍳</span></div>
+    <div class="feature-content">
+      <span class="section-tag-el">Unsere Geschichte</span>
+      <h2 class="section-title" style="text-align:left" id="w-about-title">Kochen mit <em>Überzeugung</em></h2>
+      <ul class="feature-list">
+        <li><div class="dot"></div><div><strong id="w-f1t">Lokale Produzenten</strong><p id="w-f1d">Wir arbeiten mit lokalen Erzeugern zusammen.</p></div></li>
+        <li><div class="dot"></div><div><strong id="w-f2t">Saisonale Karte</strong><p id="w-f2d">Unsere Karte wechselt mit den Jahreszeiten.</p></div></li>
+        <li><div class="dot"></div><div><strong id="w-f3t">Handwerk &amp; Leidenschaft</strong><p id="w-f3d">Jedes Gericht ist eine Liebeserklärung.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="testimonial-section">
+  <div class="stars">★ ★ ★ ★ ★</div>
+  <p class="testimonial-quote" id="w-quote">"Das beste Restaurant in Frankfurt."</p>
+  <span class="testimonial-author" id="w-quote-author">— Gast</span>
+</div>
+
+<section class="reservation-section" id="reservierung" style="background:#D4410B">
+  <span class="section-tag-el" style="color:rgba(255,255,255,0.7)">Wir freuen uns auf Sie</span>
+  <h2 class="section-title" style="color:white">Tisch reservieren</h2>
+  <div class="reservation-form">
+    <input class="res-input" type="text" placeholder="Ihr Name">
+    <input class="res-input" type="date">
+    <input class="res-input" type="text" placeholder="Personen">
+    <button class="res-btn" style="background:var(--dark);color:var(--gold)">Anfragen</button>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo" id="w-footer-name">Feuer &amp; Seele</div>
+  <div class="footer-info">
+    <div id="w-address">Berger Straße 42 · 60316 Frankfurt</div>
+    <div id="w-hours">Di–Sa 18:00–23:00 · So 12:00–16:00</div>
+    <div id="w-contact">+49 69 1234567 · info@feuerundseele.de</div>
+  </div>
+  <span class="footer-copy" id="w-copy">© 2025 Feuer &amp; Seele</span>
+</footer>
+
+<script>
+// ===== CONFIG =====
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAxiJJXHOsfwb5Ac9j7hbz61KO3zx-OpLP6DU9A31wzgPDiHx_ufuLZLzGHaL_vLU/exec';
+const DEFAULT_PASSWORD = 'admin123';
+
+// ===== STATE =====
+let menuItems = [];
+let config = {};
+let isLoggedIn = false;
+
+// ===== LOGIN =====
+function checkLogin() {
+  const pw = document.getElementById('pw-input').value;
+  const savedPw = localStorage.getItem('admin-pw') || DEFAULT_PASSWORD;
+  if (pw === savedPw) {
+    isLoggedIn = true;
+    document.getElementById('login-overlay').classList.remove('show');
+    document.getElementById('admin-toggle').style.display = 'block';
+    toggleAdmin();
+    document.getElementById('pw-input').value = '';
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    setTimeout(() => document.getElementById('login-error').style.display = 'none', 2000);
+  }
+}
+
+function logout() {
+  isLoggedIn = false;
+  document.getElementById('admin-panel').classList.remove('open');
+  document.getElementById('admin-toggle').style.display = 'none';
+}
+
+function changePassword() {
+  const p1 = document.getElementById('f-newpw').value;
+  const p2 = document.getElementById('f-newpw2').value;
+  const msg = document.getElementById('pw-msg');
+  msg.style.display = 'block';
+  if (!p1) { msg.style.color='#D4410B'; msg.textContent='Bitte Passwort eingeben.'; return; }
+  if (p1 !== p2) { msg.style.color='#D4410B'; msg.textContent='Passwörter stimmen nicht überein!'; return; }
+  localStorage.setItem('admin-pw', p1);
+  msg.style.color='#4CAF50'; msg.textContent='✓ Passwort geändert!';
+  document.getElementById('f-newpw').value = '';
+  document.getElementById('f-newpw2').value = '';
+  setTimeout(() => { msg.style.display='none'; }, 2500);
+}
+
+// Secret: 3x auf Footer-Logo klicken öffnet Login
+let logoClicks = 0;
+document.getElementById('w-footer-name').addEventListener('click', () => {
+  logoClicks++;
+  if (logoClicks >= 3) {
+    logoClicks = 0;
+    if (!isLoggedIn) document.getElementById('login-overlay').classList.add('show');
+    else toggleAdmin();
+  }
+  setTimeout(() => logoClicks = 0, 2000);
+});
+
+// ===== ADMIN PANEL =====
+function toggleAdmin() {
+  document.getElementById('admin-panel').classList.toggle('open');
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ===== LIVE UPDATE =====
+const liveMap = {
+  'name': ['w-name','w-footer-name'],
+  'slogan': ['w-slogan'],
+  'desc': ['w-desc'],
+  'tag': ['w-tag'],
+  'rating': ['w-rating'],
+  'about-title': ['w-about-title'],
+  'f1t': ['w-f1t'], 'f1d': ['w-f1d'],
+  'f2t': ['w-f2t'], 'f2d': ['w-f2d'],
+  'f3t': ['w-f3t'], 'f3d': ['w-f3d'],
+  'quote': ['w-quote'],
+  'quote-author': ['w-quote-author'],
+  'address': ['w-address'],
+  'hours': ['w-hours'],
+};
+
+function liveUpdate(key, val) {
+  config[key] = val;
+  if (liveMap[key]) liveMap[key].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  });
+  if (key === 'name') {
+    document.title = val + ' – Restaurant';
+    document.getElementById('w-copy').textContent = '© 2025 ' + val;
+  }
+  if (key === 'phone' || key === 'email') {
+    const p = document.getElementById('f-phone')?.value || '';
+    const e = document.getElementById('f-email')?.value || '';
+    const el = document.getElementById('w-contact');
+    if (el) el.textContent = p + ' · ' + e;
+  }
+  if (key === 'navlinks') {
+    const links = val.split(',').map(l => l.trim()).filter(Boolean);
+    document.getElementById('w-navlinks').innerHTML = links.map(l =>
+      `<li><a href="#${l.toLowerCase().replace(/\s+/g,'-')}">${l}</a></li>`).join('');
+  }
+  if (key === 'cats') {
+    const cats = val.split(',').map(c => c.trim()).filter(Boolean);
+    document.getElementById('w-divider').innerHTML = cats.map(c => `<span>${c}</span>`).join('');
+  }
+}
+
+function updateColor(varName, val) {
+  document.documentElement.style.setProperty(varName, val);
+}
+
+// ===== MENU =====
+function renderMenuAdmin() {
+  document.getElementById('menu-items-admin').innerHTML = menuItems.map((item, i) => `
+    <div class="menu-admin-item">
+      <div class="menu-admin-top"><span>Gericht ${i+1}</span><button class="menu-delete-btn" onclick="deleteMenuItem(${i})">✕</button></div>
+      <div class="mini-grid">
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Name</label><input class="admin-input" value="${item.name}" oninput="updateMenuItem(${i},'name',this.value)"></div>
+        <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Preis</label><input class="admin-input" value="${item.price}" oninput="updateMenuItem(${i},'price',this.value)"></div>
+      </div>
+      <div class="field-group" style="margin:0 0 0.75rem"><label class="field-label">Beschreibung</label><textarea class="admin-textarea" style="min-height:60px" oninput="updateMenuItem(${i},'desc',this.value)">${item.desc}</textarea></div>
+      <div class="field-group" style="margin:0"><label class="field-label">Badge</label><input class="admin-input" value="${item.badge||''}" oninput="updateMenuItem(${i},'badge',this.value)"></div>
+    </div>`).join('');
+}
+
+function updateMenuItem(i, key, val) {
+  menuItems[i][key] = val;
+  renderMenuGrid();
+}
+
+function deleteMenuItem(i) {
+  menuItems.splice(i, 1);
+  renderMenuAdmin();
+  renderMenuGrid();
+}
+
+function addMenuItem() {
+  menuItems.push({name:'Neues Gericht', price:'0 €', desc:'Beschreibung', badge:'Neu'});
+  renderMenuAdmin();
+  renderMenuGrid();
+}
+
+function renderMenuGrid() {
+  document.getElementById('w-menu-grid').innerHTML = menuItems.map(item => `
+    <div class="menu-item">
+      <div class="menu-item-top">
+        <span class="menu-item-name">${item.name}</span>
+        <span class="menu-price">${item.price}</span>
+      </div>
+      <p class="menu-desc">${item.desc}</p>
+      ${item.badge ? `<span class="menu-badge">${item.badge}</span>` : ''}
+    </div>`).join('');
+}
+
+// ===== GOOGLE SHEETS =====
+async function loadFromSheets() {
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+
+    // Apply text fields
+    const fields = ['name','slogan','desc','tag','rating','about-title','f1t','f1d','f2t','f2d','f3t','f3d','quote','quote-author','address','hours','phone','email','navlinks','cats'];
+    fields.forEach(k => {
+      if (data[k] !== undefined) {
+        const el = document.getElementById('f-' + k);
+        if (el) el.value = data[k];
+        liveUpdate(k, data[k]);
+      }
+    });
+
+    // Apply colors
+    if (data['color-gold']) { document.getElementById('c-gold').value = data['color-gold']; updateColor('--gold', data['color-gold']); }
+    if (data['color-ember']) { document.getElementById('c-ember').value = data['color-ember']; updateColor('--ember', data['color-ember']); }
+    if (data['color-dark']) { document.getElementById('c-dark').value = data['color-dark']; updateColor('--dark', data['color-dark']); }
+    if (data['color-cream']) { document.getElementById('c-cream').value = data['color-cream']; updateColor('--cream', data['color-cream']); }
+
+    // Apply menu
+    if (data['menu-items']) {
+      try { menuItems = JSON.parse(data['menu-items']); } catch(e) { setDefaultMenu(); }
+    } else { setDefaultMenu(); }
+
+    config = data;
+    setSyncStatus('synced', '✓ Verbunden mit Google Sheets');
+  } catch(e) {
+    setSyncStatus('error', '⚠ Offline – lokale Daten');
+    setDefaultMenu();
+    setDefaultFields();
+  }
+  renderMenuGrid();
+  renderMenuAdmin();
+  document.getElementById('loading-screen').style.display = 'none';
+}
+
+async function saveAll() {
+  setSyncStatus('syncing', '⏳ Wird gespeichert...');
+  const saveBtn = document.querySelectorAll('.admin-save');
+  saveBtn.forEach(b => { b.disabled = true; b.textContent = 'Speichert...'; });
+
+  const fields = ['name','slogan','desc','tag','rating','about-title','f1t','f1d','f2t','f2d','f3t','f3d','quote','quote-author','address','hours','phone','email','navlinks','cats'];
+  const data = {'menu-items': JSON.stringify(menuItems)};
+  fields.forEach(k => {
+    const el = document.getElementById('f-' + k);
+    if (el) data[k] = el.value;
+  });
+  data['color-gold'] = document.getElementById('c-gold').value;
+  data['color-ember'] = document.getElementById('c-ember').value;
+  data['color-dark'] = document.getElementById('c-dark').value;
+  data['color-cream'] = document.getElementById('c-cream').value;
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    setSyncStatus('synced', '✓ Gespeichert in Google Sheets!');
+    setTimeout(() => setSyncStatus('synced', '✓ Verbunden mit Google Sheets'), 3000);
+  } catch(e) {
+    setSyncStatus('error', '⚠ Speichern fehlgeschlagen');
+  }
+
+  saveBtn.forEach(b => { b.disabled = false; b.textContent = '💾 In Google Sheets speichern'; });
+}
+
+function setSyncStatus(type, msg) {
+  const el = document.getElementById('sync-status');
+  el.className = 'sync-status ' + type;
+  el.textContent = msg;
+}
+
+// ===== DEFAULTS =====
+function setDefaultMenu() {
+  menuItems = [
+    {name:'Geröstete Rote Bete', price:'14 €', desc:'Mit Ziegenkäse, Walnusskruste und Wildkräutern', badge:'Vegetarisch'},
+    {name:'Beef Tatar klassisch', price:'18 €', desc:'Handgeschnittenes Rinderfilet, Kapern, Eigelb', badge:"Chef's Pick"},
+    {name:'Kürbissuppe', price:'11 €', desc:'Hokkaido-Kürbis, Ingwer, Kokosmilch', badge:'Vegan'},
+    {name:'Entrecôte vom Grill', price:'38 €', desc:'300g Dry-Aged Beef, Kräuterbutter, Trüffel-Jus', badge:'Signature'},
+    {name:'Atlantischer Lachs', price:'29 €', desc:'Gebratenes Lachsfilet, Fenchel-Orangen-Salat', badge:'Frisch'},
+    {name:'Crème Brûlée', price:'9 €', desc:'Klassisch mit Vanille aus Madagaskar', badge:'Dessert'}
+  ];
+}
+
+function setDefaultFields() {
+  const defaults = {
+    'name':'Feuer & Seele','slogan':'Wo Feuer auf Seele trifft.','desc':'Handgemachte Küche mit Leidenschaft. Jedes Gericht erzählt eine Geschichte.','tag':'Seit 2008 · Frankfurt am Main','rating':'★ 4.9','about-title':'Kochen mit Überzeugung','f1t':'Lokale Produzenten','f1d':'Wir arbeiten ausschließlich mit Bauernhöfen aus einem Umkreis von 100 km zusammen.','f2t':'Saisonale Karte','f2d':'Unsere Speisekarte wechselt mit den Jahreszeiten – für maximale Frische.','f3t':'Handwerk & Leidenschaft','f3d':'Küchenchef Marco Brandt kocht seit 20 Jahren – jedes Gericht ist eine Liebeserklärung.','quote':'"Das beste Restaurant in Frankfurt. Das Entrecôte war ein absolutes Erlebnis."','quote-author':'Sarah K., Google Bewertung','address':'Berger Straße 42 · 60316 Frankfurt am Main','hours':'Di–Sa 18:00–23:00 · So 12:00–16:00','phone':'+49 69 1234567','email':'info@feuerundseele.de','navlinks':'Speisekarte,Über uns,Reservierung','cats':'Vorspeisen,Hauptgerichte,Desserts,Weine'
+  };
+  Object.entries(defaults).forEach(([k,v]) => {
+    const el = document.getElementById('f-'+k);
+    if (el) el.value = v;
+    liveUpdate(k, v);
+  });
+}
+
+// ===== INIT =====
+loadFromSheets();
+</script>
+
+
+</body></html>
