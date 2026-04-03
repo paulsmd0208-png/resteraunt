@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0044)file:///C:/Users/Paul/Downloads/index_7.html -->
+<!-- saved from url=(0044)file:///C:/Users/Paul/Downloads/index_8.html -->
 <html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -327,7 +327,7 @@ footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;
 <div id="main-content" style="opacity: 1;">
 <nav>
   <div class="nav-logo" id="w-name">Feuer &amp; Seele</div>
-  <ul class="nav-links" id="w-navlinks"><li><a href="file:///C:/Users/Paul/Downloads/index_7.html#speisekarte">Speisekarte</a></li><li><a href="file:///C:/Users/Paul/Downloads/index_7.html#%C3%BCber-uns">Über uns</a></li><li><a href="file:///C:/Users/Paul/Downloads/index_7.html#reservierung">Reservierung</a></li></ul>
+  <ul class="nav-links" id="w-navlinks"><li><a href="file:///C:/Users/Paul/Downloads/index_8.html#speisekarte">Speisekarte</a></li><li><a href="file:///C:/Users/Paul/Downloads/index_8.html#%C3%BCber-uns">Über uns</a></li><li><a href="file:///C:/Users/Paul/Downloads/index_8.html#reservierung">Reservierung</a></li></ul>
   <button class="nav-cta" onclick="document.getElementById(&#39;reservierung&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Tisch reservieren</button>
 </nav>
 
@@ -614,7 +614,7 @@ function renderMenuGrid() {
 // ===== GOOGLE SHEETS =====
 async function loadFromSheets() {
   try {
-    const res = await fetch(SCRIPT_URL);
+    const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
     const data = await res.json();
 
     // Apply text fields
