@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- saved from url=(0044)file:///C:/Users/Paul/Downloads/index_9.html -->
+<!-- saved from url=(0045)file:///C:/Users/Paul/Downloads/index_11.html -->
 <html lang="de" style="--gold: #c8972a; --ember: #d4410b; --dark: #1a1208; --cream: #f5f0e8;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="page-title">Marits Bäckerstube – Restaurant</title>
+<title id="page-title">Bäckerstube – Restaurant</title>
 <link href="./index_files/css2" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -160,6 +160,68 @@ footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;
 .spinner{width:32px;height:32px;border:2px solid rgba(200,151,42,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+/* ===== MOBILE NAV HAMBURGER ===== */
+.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.nav-hamburger span{display:block;width:24px;height:2px;background:var(--cream);transition:all 0.3s}
+.nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-hamburger.open span:nth-child(2){opacity:0}
+.nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.nav-mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,18,8,0.98);z-index:99;flex-direction:column;align-items:center;justify-content:center;gap:2rem}
+.nav-mobile-menu.open{display:flex}
+.nav-mobile-menu a{color:var(--cream);text-decoration:none;font-size:1.4rem;letter-spacing:0.15em;text-transform:uppercase;font-family:'Playfair Display',serif}
+.nav-mobile-menu .nav-cta-mobile{background:var(--ember);color:white;padding:0.9rem 2.5rem;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:1rem}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  /* Nav */
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+  .nav-cta{display:none}
+  .nav-hamburger{display:flex}
+
+  /* Hero */
+  .hero{grid-template-columns:1fr;min-height:auto}
+  .hero-left{padding:6rem 1.5rem 2rem;text-align:center;align-items:center}
+  .hero-desc{max-width:100%}
+  .hero-btns{justify-content:center}
+  .hero-right{min-height:280px}
+  .hero-plate{width:200px;height:200px}
+  .plate-emoji{font-size:4.5rem}
+  .hero-badge{width:70px;height:70px;font-size:0.55rem;top:15%;right:8%}
+  .hero-badge strong{font-size:1rem}
+
+  /* Divider */
+  .divider{padding:1.5rem 1rem;gap:1rem}
+
+  /* Sections */
+  .section{padding:3rem 1.5rem}
+  .section-header{margin-bottom:2.5rem}
+
+  /* Menu Grid */
+  .menu-grid{grid-template-columns:1fr}
+
+  /* Feature Split */
+  .feature-split{grid-template-columns:1fr}
+  .feature-visual{padding:3rem;min-height:200px}
+  .feature-content{padding:2.5rem 1.5rem}
+
+  /* Testimonial */
+  .testimonial-section{padding:3rem 1.5rem}
+
+  /* Reservation */
+  .reservation-section{padding:3rem 1.5rem}
+  .reservation-form{flex-direction:column;align-items:stretch}
+  .res-input{min-width:0;width:100%}
+  .res-btn{width:100%}
+
+  /* Footer */
+  footer{padding:2rem 1.5rem;flex-direction:column;align-items:flex-start;gap:1rem}
+
+  /* Admin Panel */
+  #admin-panel{width:100%;right:-100%}
+  #admin-toggle{bottom:1rem;right:1rem;padding:0.6rem 1.1rem;font-size:0.75rem}
+}
 </style>
 </head>
 <body>
@@ -324,18 +386,32 @@ footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;
 </div>
 
 <!-- WEBSITE -->
-<div id="main-content" style="opacity: 0;">
+<div id="main-content" style="opacity: 1;">
+<!-- MOBILE MENU OVERLAY -->
+<div class="nav-mobile-menu" id="mobile-menu">
+  <button class="nav-hamburger open" onclick="closeMobileMenu()" style="position:absolute;top:1.5rem;right:1.5rem">
+    <span></span><span></span><span></span>
+  </button>
+  <a href="file:///C:/Users/Paul/Downloads/index_11.html#menu" onclick="closeMobileMenu()">Speisekarte</a>
+  <a href="file:///C:/Users/Paul/Downloads/index_11.html#ueber-uns" onclick="closeMobileMenu()">Über uns</a>
+  <a href="file:///C:/Users/Paul/Downloads/index_11.html#reservierung" onclick="closeMobileMenu()">Reservierung</a>
+  <button class="nav-cta-mobile" onclick="closeMobileMenu();document.getElementById(&#39;reservierung&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Tisch reservieren</button>
+</div>
+
 <nav>
-  <div class="nav-logo" id="w-name">Marits Bäckerstube</div>
+  <div class="nav-logo" id="w-name">Bäckerstube</div>
   <ul class="nav-links" id="w-navlinks"></ul>
   <button class="nav-cta" onclick="document.getElementById(&#39;reservierung&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Tisch reservieren</button>
+  <button class="nav-hamburger" id="hamburger" onclick="openMobileMenu()" aria-label="Menü öffnen">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <section class="hero">
   <div class="hero-left">
-    <span class="hero-tag" id="w-tag"></span>
-    <h1 class="hero-title" id="w-slogan"></h1>
-    <p class="hero-desc" id="w-desc"></p>
+    <span class="hero-tag" id="w-tag">Rühlerfeld ; 2022</span>
+    <h1 class="hero-title" id="w-slogan">Frisch. Handgemacht. Mit Liebe gebacken.</h1>
+    <p class="hero-desc" id="w-desc">Willkommen in der Bäckerstube – deinem Ort für ofenfrische Backwaren, aromatischen Kaffee und gemütliche Momente. Wir verbinden traditionelles Bäckerhandwerk mit modernen Ideen und hochwertigen Zutaten aus der Region.</p>
     <div class="hero-btns">
       <button class="btn-primary" onclick="document.getElementById(&#39;menu&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Speisekarte</button>
       <button class="btn-secondary" onclick="document.getElementById(&#39;reservierung&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Tisch reservieren</button>
@@ -412,11 +488,11 @@ footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;
     <div class="feature-visual"><span class="feature-icon">👨‍🍳</span></div>
     <div class="feature-content">
       <span class="section-tag-el">Unsere Geschichte</span>
-      <h2 class="section-title" style="text-align:left" id="w-about-title"></h2>
+      <h2 class="section-title" style="text-align:left" id="w-about-title">Echte Handwerkskunst, die man schmeckt</h2>
       <ul class="feature-list">
-        <li><div class="dot"></div><div><strong id="w-f1t"></strong><p id="w-f1d"></p></div></li>
-        <li><div class="dot"></div><div><strong id="w-f2t"></strong><p id="w-f2d"></p></div></li>
-        <li><div class="dot"></div><div><strong id="w-f3t"></strong><p id="w-f3d"></p></div></li>
+        <li><div class="dot"></div><div><strong id="w-f1t">Traditionelles Backen</strong><p id="w-f1d">Unsere Rezepte basieren auf bewährtem Handwerk – täglich frisch gebacken, ohne künstliche Zusätze und mit viel Liebe zum Detail.</p></div></li>
+        <li><div class="dot"></div><div><strong id="w-f2t">Regionale Zutaten</strong><p id="w-f2d">Wir legen großen Wert auf Qualität und beziehen unsere Zutaten bevorzugt von lokalen Produzenten aus der Region.</p></div></li>
+        <li><div class="dot"></div><div><strong id="w-f3t">Gemütliche Atmosphäre</strong><p id="w-f3d">Ob zum Frühstück, Kaffeeklatsch oder kurzen Genussmoment – bei uns fühlst du dich wie zuhause.</p></div></li>
       </ul>
     </div>
   </div>
@@ -424,8 +500,8 @@ footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;
 
 <div class="testimonial-section">
   <div class="stars">★ ★ ★ ★ ★</div>
-  <p class="testimonial-quote" id="w-quote"></p>
-  <span class="testimonial-author" id="w-quote-author"></span>
+  <p class="testimonial-quote" id="w-quote">„Die beste Bäckerei in Rühlerfeld! Alles schmeckt unglaublich frisch und der Kaffee ist einfach perfekt. Absolute Empfehlung!“</p>
+  <span class="testimonial-author" id="w-quote-author">Marit</span>
 </div>
 
 <section class="reservation-section" id="reservierung" style="background:#D4410B">
@@ -440,13 +516,13 @@ footer{padding:3rem 5rem;border-top:1px solid rgba(200,151,42,0.1);display:flex;
 </section>
 
 <footer>
-  <div class="footer-logo" id="w-footer-name">Marits Bäckerstube</div>
+  <div class="footer-logo" id="w-footer-name">Bäckerstube</div>
   <div class="footer-info">
-    <div id="w-address"></div>
-    <div id="w-hours"></div>
-    <div id="w-contact"> · </div>
+    <div id="w-address">Rühlerfeld</div>
+    <div id="w-hours">9-22 Uhr</div>
+    <div id="w-contact">+49 176 48980828 · schmidtpaul.ecom@gmail.com</div>
   </div>
-  <span class="footer-copy" id="w-copy">© 2025 Marits Bäckerstube</span>
+  <span class="footer-copy" id="w-copy">© 2025 Bäckerstube</span>
 </footer>
 </div><!-- end main-content -->
 
@@ -709,6 +785,16 @@ function setDefaultFields() {
     if (el) el.value = v;
     liveUpdate(k, v);
   });
+}
+
+// ===== MOBILE MENU =====
+function openMobileMenu(){
+  document.getElementById('mobile-menu').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeMobileMenu(){
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.body.style.overflow='';
 }
 
 // ===== INIT =====
